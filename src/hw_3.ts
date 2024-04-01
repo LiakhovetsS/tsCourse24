@@ -165,30 +165,29 @@ class Group {
 }
 
 class Lesson {
-    private _lesson:string;
-    constructor(name:string){
-        this._lesson=name;
-    }
-    get lesson():string{
-        return this._lesson;
-    }
+  private _lesson: string;
+  constructor(name: string) {
+    this._lesson = name;
+  }
+  get lesson(): string {
+    return this._lesson;
+  }
 }
 
 class Grade {
-    workName:string;
-    grade:number;
-    constructor(workName:string, grade:number){
-        this.grade=grade;
-        this.workName=workName;
-    }
-
+  workName: string;
+  grade: number;
+  constructor(workName: string, grade: number) {
+    this.grade = grade;
+    this.workName = workName;
+  }
 }
 
 class Student {
   private _firstName: string;
   private _lastName: string;
   private _birthYear: number;
-  private _grades: Grade[]=[];
+  private _grades: Grade[] = [];
   private _visits: Lesson[] = [];
   constructor(firstName: string, lastName: string, birthYear: number) {
     this._birthYear = birthYear;
@@ -212,7 +211,7 @@ class Student {
     this._visits.push(present);
   }
 
-  setGrade(grade:Grade): void {
+  setGrade(grade: Grade): void {
     this._grades.push(grade);
   }
 
@@ -220,8 +219,8 @@ class Student {
     if (!this._grades.length) return 0;
 
     const averageGrade: number =
-    this._grades.reduce((sum: number, grade: Grade) => sum + grade.grade, 0) /
-    this._grades.length;
+      this._grades.reduce((sum: number, grade: Grade) => sum + grade.grade, 0) /
+      this._grades.length;
 
     const attendancePercentage: number =
       (this._visits.filter((present: Lesson) => present).length /
