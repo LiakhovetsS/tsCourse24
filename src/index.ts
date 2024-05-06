@@ -71,3 +71,54 @@ const user = new User();
 
 let type: typeof user; // type: { name: string; age: number; }
 let union: keyof typeof user; // union: 'name' | 'age'
+
+class ClassType {}
+interface InterfaceType {}
+
+type TypeAlias = number;
+
+declare let typeInterface: InterfaceType;
+declare let typeTypeAlias: TypeAlias;
+
+let a = { a: 5, b: 'text', c: true }; // a: number, b:string, c: boolean}
+const b = { a: 5, b: 'text', c: true }; // {a: number, b: string, c: boolean}
+
+let c = new ClassType(); // ClassType
+let d = typeInterface; // InterfaceType
+let e = typeTypeAlias; // number
+
+let x = [42, 'Hello', true]; // (string | number | boolean)[]
+let element = x[0]; // string | number | boolean | undefined
+
+
+class A {}
+class B extends A {
+  a = 42;
+}
+class C extends A {
+  a = 'Hello';
+}
+class D extends A {
+  a = true;
+}
+class E extends D {
+  b = {};
+}
+
+let as = false ? new A() : new B(); // A
+let bs = false ? new B() : new C(); // B | C
+let cs = false ? new E() : new D(); // D
+function f(...rest: [number, string?, boolean?]): [number, string?, boolean?] {
+  return rest;
+}
+
+let xs = f(42).length; // 1 | 2 | 3
+
+function tuple<T extends any[]>(...args: T): T {
+  return args;
+}
+
+const numbers: number[] = [0, 1, 2];
+const sa = tuple(42, 'Hello', true); // [number, string, boolean]
+let ss = tuple(42, ...numbers); // [number, ...number[]]
+let sc = tuple(42, ...numbers, 'Hello'); // [number, ...number[], string]
