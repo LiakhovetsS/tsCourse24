@@ -17,6 +17,10 @@ type TypeNumber = TypeOfFunctionS<typeof myFuncNumber>; //number
 type TypeString = TypeOfFunctionS<typeof myFuncString>; //string
 type TypeLen = TypeOfFunctionS<typeof myFuncLen>; //never
 
+type TypeTyple<T> = T extends (args: infer P) => infer R
+  ? [P, R]
+  : never;
+  type getTuple = TypeTyple<typeof myFuncLen>;
 //HW - 12.
 
 enum GridFilterTypeEnum {
@@ -78,7 +82,7 @@ class FilmCategory implements IFilmCategory{
       }
 
       applySearchValue(field: keyof FilterState, value: string) {
-        this.filters[field] = { type:  GridFilterTypeEnum.Matching,, filter: value };
+        this.filters[field] = { type:  GridFilterTypeEnum.Matching, filter: value };
       }
 
 }
