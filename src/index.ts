@@ -122,3 +122,53 @@ const numbers: number[] = [0, 1, 2];
 const sa = tuple(42, 'Hello', true); // [number, string, boolean]
 let ss = tuple(42, ...numbers); // [number, ...number[]]
 let sc = tuple(42, ...numbers, 'Hello'); // [number, ...number[], string]
+
+interface ClassDecoratorContext {
+  readonly kind: 'class';
+  readonly name: string | undefined;
+  readonly metadata: DecoratorMetadata;
+  addInitializer(initializer: () => void): void;
+}
+
+// Legacy
+//type ClassDecorator = <TFunction extends Function>(target: TFunction) => TFunction | void;
+
+interface IRocketTank {
+  tankVolume: number;
+  isReadyForCheck(): boolean;
+  isReadyForLaunch(): boolean;
+}
+
+type Constructor<T = {}> = new (...args: any[]) => T;
+
+function WithTank<T extends Constructor>(originalClass: T, context: ClassDecoratorContext<T>) {
+  if (context.kind !== 'class') throw new Error('Class-only decorator');
+
+  class ReplacementClass extends originalClass implements IRocketTank {
+    public tankVolume = 100;
+
+    public isReadyForCheck(): boolean {
+      return this.tankVolume > 0;
+    }
+
+    public isReadyForLaunch(): boolean {
+      return this.tankVolume === 100;
+    }
+  }
+
+  return ReplacementClass;
+}
+
+@WithTank
+class Rocket {
+  public fuel = 75;
+
+  public checkForStart(): boolean {
+    return this.fuel !== 0;
+  }
+}
+
+const rocket = new Rocket() as Rocket & IRocketTank;
+
+console.log(rocket.tankVolume); // 100
+console.log(`Is ready for launch? ${rocket.isReadyForLaunch()}`);
