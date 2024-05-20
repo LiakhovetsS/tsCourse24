@@ -55,51 +55,57 @@ abstract class App {
   /**
    * addTask
    */
-  public add(name: string, description: string, status: TaskStatusEnum) {}
+  public abstract add(
+    name: string,
+    description: string,
+    status: TaskStatusEnum
+  ): Task;
   /**
    * remove
    */
-  public remove(id: number) {}
+  public abstract remove(id: number): boolean | never;
   /**
    * edit
    */
-  public edit(id: number, description: string) {}
+  public abstract edit(id: number, description: string): Task | never;
   /**
    * getAllTasks
    */
-  public getAllTasks() {}
+  public abstract getAllTasks(): Task[];
   /**
    * getTaskById
    */
-  public getTaskById(id: number) {}
+  public abstract getTaskById(id: number): Task | never;
 
   /**
    * getCountTask
    */
-  public getCountTask() {}
+  public abstract getCountTask(): number;
   /**
    * uncomplitedCount
    */
-  public uncomplitedCount() {}
+  public abstract uncomplitedCount(): number;
   /**
    * markCompleted
    */
-  public markCompleted(id: number) {}
+  public abstract markCompleted(id: number): Task | never;
 }
 
-interface IAdditionalMethods {
+interface ITodoSort {
+  sortByStatus(): Task[];
+  sortByCreationTime(): Task[];
+}
+interface ITodoFilter {
   searchTask(query: string): Task[];
-  sortByStatus():Task[];
-  sortByCreationTime():Task[];
 }
 
 type TaskList = Map<number, Task>;
-type listFromMap ={
-  name:string,
-  value:Task
+type listFromMap = {
+  name: string;
+  value: Task;
 };
 
-class TodoList extends App  implements IAdditionalMethods{
+class TodoList extends App {
   private list: TaskList = new Map();
 
   public add(
@@ -116,7 +122,7 @@ class TodoList extends App  implements IAdditionalMethods{
     return this.list.size;
   }
 
-  public uncomplitedCount() {
+  public uncomplitedCount(): number {
     const taskListArray: Task[] = this.getListFromMap();
     return this.filterMethod(
       taskListArray,
@@ -152,49 +158,66 @@ class TodoList extends App  implements IAdditionalMethods{
     return task;
   }
 
-  public searchTask(query: string): Task[] {
-    const taskListArray: Task[] = this.getListFromMap();
-    return this.filterMethod(
-      taskListArray,
-      (task: Task) =>
-        task.name.includes(query) || task.description.includes(query)
-    );
+  protected getListFromMap(): Task[] {
+    return Array.from(this.list.values());
   }
 
-  public sortByStatus(): Task[] {
-    const taskListArray: Task[] = this.getListFromMap();
-    return this.sortMethod(taskListArray, (a, b) =>
-      a.completed === b.completed ? 0 : a.completed ? 1 : -1
-    );
+  protected sortMethod<T>(list: T[], condition: (a: T, b: T) => number): T[] {
+    return list.sort(condition);
   }
-
-  public sortByCreationTime(): Task[] {
-    const taskListArray: Task[] = this.getListFromMap();
-    return this.sortMethod(
-      taskListArray,
-      (a, b) => a.createdDate.getTime() - b.createdDate.getTime()
-    );
+  protected filterMethod<T>(list: T[], condition: (item: T) => boolean): T[] {
+    return list.filter(condition);
   }
-
-  private getListFromMap(): Task[]{
-      return Array.from(this.list.values())
-  }
-
   private chekTask(id: number): boolean | never {
     if (!this.list.has(id)) {
       throw new Error(`Task: ${id} not found!`);
     }
     return true;
   }
-  private filterMethod<T>(list: T[], condition: (item: T) => boolean): T[] {
-    return list.filter(condition);
-  }
-  private sortMethod<T>(list: T[], condition: (a: T, b: T) => number): T[] {
-    return list.sort(condition);
-  }
 }
 
+class TODOListWithFilter extends TodoList implements ITodoFilter {
+  constructor() {
+    super();
+  }
+  public searchTask(query: string): Task[] {
+    const taskListArray: Task[] = super.getListFromMap();
+    return super.filterMethod(
+      taskListArray,
+      (task: Task) =>
+        task.name.includes(query) || task.description.includes(query)
+    );
+  }
+}
+class TODOListWithSort extends TodoList implements ITodoSort{
+  constructor(){
+    super();
+  }
+  public sortByStatus(): Task[] {
+    const taskListArray: Task[] = super.getListFromMap();
+    return super.sortMethod(taskListArray, (a, b) =>
+      a.completed === b.completed ? 0 : a.completed ? 1 : -1
+    );
+  }
+
+  public sortByCreationTime(): Task[] {
+    const taskListArray: Task[] = super.getListFromMap();
+    return super.sortMethod(
+      taskListArray,
+      (a, b) => a.createdDate.getTime() - b.createdDate.getTime()
+    );
+  }
+}∏
+
 const myToDOList = new TodoList();
-myToDOList.add('HW 14', 'Test', TaskStatusEnum.DEFAULT);
-myToDOList.sortByCreationTime()
+myToDOList.add("HW 14", "Test", TaskStatusEnum.DEFAULT);
 const listTask = myToDOList.getAllTasks();
+
+const myToDoListSort = new TODOListWithSort();
+myToDOList.add("HW 14", "My sort list", TaskStatusEnum.CONFIRM);
+myToDoListSort.sortByCreationTime();
+
+const myToDoListFilter = new TODOListWithFilter();
+myToDoListFilter.add("HW 14", "My filter list", TaskStatusEnum.CONFIRM);
+myToDoListFilter.add("HW 14.1", "My HW with filter list 1", TaskStatusEnum.DEFAULT);
+myToDoListFilter.searchTask('HW');
